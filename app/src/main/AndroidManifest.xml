@@ -3,6 +3,7 @@
           package="xyz.gsora.siacold">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
 
     <application
         android:name=".SiaCold"

@@ -3,21 +3,22 @@ package xyz.gsora.siacold.WelcomeUI;
 
 import android.app.KeyguardManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.mtramin.rxfingerprint.EncryptionMethod;
+import com.mtramin.rxfingerprint.RxFingerprint;
+import io.reactivex.disposables.Disposable;
 import xyz.gsora.siacold.Crypto;
 import xyz.gsora.siacold.R;
 import xyz.gsora.siacold.SiaCold;
-
-import static android.app.Activity.RESULT_OK;
+import xyz.gsora.siacold.Utils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -55,25 +56,31 @@ public class GoToMasterUI extends Fragment {
         keyguard = (KeyguardManager) getActivity().getSystemService(Context.KEYGUARD_SERVICE);
         c = new Crypto(getActivity(), getContext(), this);
         button.setOnClickListener(v -> {
-            c.tryDecrypt();
+            String decryptedValue = null;
+            Disposable disposable = RxFingerprint.decrypt(EncryptionMethod.RSA, getActivity(), SiaCold.KEY_NAME, decryptedValue)
+                    .subscribe(decryptionResult -> {
+                        switch (decryptionResult.getResult()) {
+                            case FAILED:
+                                Utils.toast(getActivity(), "Fingerprint not recognized, try again!");
+                                break;
+                            case HELP:
+                                Utils.toast(getActivity(), decryptionResult.getMessage());
+                                break;
+                            case AUTHENTICATED:
+                                Utils.toast(getActivity(), "decrypted:\n" + decryptionResult.getDecrypted());
+                                break;
+                        }
+                    }, throwable -> {
+                        //noinspection StatementWithEmptyBody
+                        if (RxFingerprint.keyInvalidated(throwable)) {
+                            // The keys you wanted to use are invalidated because the user has turned off his
+                            // secure lock screen or changed the fingerprints stored on the device
+                            // You have to re-encrypt the data to access it
+                        }
+                        Log.e("ERROR", "decrypt", throwable);
+                        Utils.toast(getActivity(), throwable.getMessage());
+                    });
+            disposable.dispose();
         });
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case SiaCold.REQUEST_CODE:
-                // Challenge completed, proceed with using cipher
-                if (resultCode == RESULT_OK) {
-                    if (c.tryDecrypt()) {
-                        Toast.makeText(getActivity(), "tryEncrypt Success", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getActivity(), "tryEncrypt Failed", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(getActivity(), "tryEncrypt Failed", Toast.LENGTH_SHORT).show();
-                }
-                break;
-        }
     }
 }

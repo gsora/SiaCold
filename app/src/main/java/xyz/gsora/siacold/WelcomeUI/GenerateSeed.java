@@ -4,27 +4,26 @@ package xyz.gsora.siacold.WelcomeUI;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.mtramin.rxfingerprint.EncryptionMethod;
+import com.mtramin.rxfingerprint.RxFingerprint;
+import io.reactivex.disposables.Disposable;
 import siawallet.Wallet;
 import xyz.gsora.siacold.Crypto;
 import xyz.gsora.siacold.R;
 import xyz.gsora.siacold.SiaCold;
-
-import java.nio.charset.StandardCharsets;
-
-import static android.app.Activity.RESULT_OK;
+import xyz.gsora.siacold.Utils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -96,9 +95,26 @@ public class GenerateSeed extends Fragment {
                 .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        c.createKey();
-                        seed = seedTxt.getText().toString();
-                        c.tryEncrypt(seed.getBytes(StandardCharsets.UTF_8));
+                        if (RxFingerprint.isAvailable(getActivity())) {
+                            Disposable disposable = RxFingerprint.encrypt(EncryptionMethod.RSA, getActivity(), SiaCold.KEY_NAME, w.getSeed())
+                                    .subscribe(encryptionResult -> {
+                                        switch (encryptionResult.getResult()) {
+                                            case FAILED:
+                                                Utils.toast(getActivity(),"Fingerprint not recognized, try again!");
+                                                break;
+                                            case HELP:
+                                                Utils.toast(getActivity(), encryptionResult.getMessage());
+                                                break;
+                                            case AUTHENTICATED:
+                                                Utils.toast(getActivity(), "Successfully authenticated!");
+                                                break;
+                                        }
+                                    }, throwable -> {
+                                        Log.e("ERROR", "authenticate", throwable);
+                                        Utils.toast(getActivity(), throwable.getMessage());
+                                    });
+                            disposable.dispose();
+                        }
                     }
                 });
 
@@ -106,23 +122,5 @@ public class GenerateSeed extends Fragment {
         ad.show();
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case SiaCold.REQUEST_CODE:
-                // Challenge completed, proceed with using cipher
-                if (resultCode == RESULT_OK) {
-                    c.createKey();
-                    if (c.tryEncrypt(seed.getBytes(StandardCharsets.UTF_8))) {
-                        Toast.makeText(getActivity(), "tryEncrypt Success", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getActivity(), "tryEncrypt Failed", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(getActivity(), "tryEncrypt Failed", Toast.LENGTH_SHORT).show();
-                }
-                break;
-        }
-    }
 
 }

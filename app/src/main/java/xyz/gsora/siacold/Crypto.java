@@ -20,7 +20,6 @@ import javax.crypto.spec.IvParameterSpec;
 import java.io.IOException;
 import java.security.*;
 import java.security.cert.CertificateException;
-import java.util.Arrays;
 
 /**
  * Created by gsora on 6/27/17.
@@ -97,15 +96,14 @@ public class Crypto {
 
             // Try encrypting something, it will only work if the user authenticated within
             // the last AUTHENTICATION_DURATION_SECONDS seconds.
-            byte[] iv = cipher.getIV();
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(iv));
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            cipher.doFinal(data);
 
-            Log.d(TAG, "tryEncrypt: IV " + iv);
+            byte[] iv = cipher.getIV();
             SharedPreferences.Editor editor = activity.getSharedPreferences("iv", Activity.MODE_PRIVATE).edit();
-            editor.putString("encryptionIv", Base64.encodeToString(iv, Base64.NO_PADDING));
+            editor.putString("encryptionIv", Base64.encodeToString(iv, Base64.DEFAULT));
             editor.apply();
 
-            cipher.doFinal(data);
 
             // If the user has recently authenticated, you will reach here.
             return true;
@@ -127,10 +125,7 @@ public class Crypto {
                 | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
             Log.d(TAG, "tryEncrypt: " + e.toString());
             throw new RuntimeException(e);
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
         }
-        return false;
     }
 
 
@@ -148,9 +143,7 @@ public class Crypto {
             SharedPreferences s = activity.getSharedPreferences("iv", Activity.MODE_PRIVATE);
             String strIv = s.getString("encryptionIv", null);
 
-            Log.d("HEH", "tryDecrypt: IV " + Arrays.toString(Base64.decode(strIv, Base64.NO_PADDING)));
-
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(Base64.decode(strIv, Base64.NO_PADDING)));
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(Base64.decode(strIv, Base64.DEFAULT)));
             byte[] seed = cipher.doFinal();
 
             Log.d("HEH", "tryDecrypt: " + String.valueOf(seed));

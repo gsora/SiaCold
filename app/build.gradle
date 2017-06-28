@@ -48,4 +48,5 @@ dependencies {
     compile 'me.grantland:autofittextview:0.2.1'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
+    compile 'com.mtramin:rxfingerprint:2.1.0'
 }
