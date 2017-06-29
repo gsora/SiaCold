@@ -3,6 +3,7 @@ package xyz.gsora.siacold;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import xyz.gsora.siacold.Addresses.AddressesNamedFragment;
 
 /**
  * Created by gsora on 27/06/17.

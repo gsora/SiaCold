@@ -3,22 +3,24 @@
           package="xyz.gsora.siacold">
 
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
+    <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
 
     <application
-        android:name=".SiaCold"
+        android:name=".General.SiaCold"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/MyMaterialTheme">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".WelcomeUI.WelcomeActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/MyMaterialTheme">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

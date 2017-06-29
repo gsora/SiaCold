@@ -1,0 +1,39 @@
+package xyz.gsora.siacold.Addresses;
+
+import android.content.Context;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.util.AttributeSet;
+import android.view.View;
+import xyz.gsora.siacold.General.Utils;
+
+/**
+ * Created by gsora on 6/29/17.
+ */
+
+public class AddAddressesFAB extends CoordinatorLayout.Behavior<FloatingActionButton> {
+    private int toolbarHeight;
+
+    public AddAddressesFAB(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        this.toolbarHeight = Utils.getToolbarHeight(context);
+    }
+
+    @Override
+    public boolean layoutDependsOn(CoordinatorLayout parent, FloatingActionButton fab, View dependency) {
+        return dependency instanceof AppBarLayout;
+    }
+
+    @Override
+    public boolean onDependentViewChanged(CoordinatorLayout parent, FloatingActionButton fab, View dependency) {
+        if (dependency instanceof AppBarLayout) {
+            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
+            int fabBottomMargin = lp.bottomMargin;
+            int distanceToScroll = fab.getHeight() + fabBottomMargin;
+            float ratio = (float) dependency.getY() / (float) toolbarHeight;
+            fab.setTranslationY(-distanceToScroll * ratio);
+        }
+        return true;
+    }
+}

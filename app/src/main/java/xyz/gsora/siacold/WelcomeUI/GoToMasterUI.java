@@ -11,9 +11,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import xyz.gsora.siacold.General.Utils;
 import xyz.gsora.siacold.MainActivity;
 import xyz.gsora.siacold.R;
-import xyz.gsora.siacold.Utils;
 
 /**
  * A simple {@link Fragment} subclass.

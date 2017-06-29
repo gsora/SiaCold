@@ -1,6 +1,10 @@
 package xyz.gsora.siacold;
 
+import android.app.KeyguardManager;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -12,7 +16,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import io.realm.Realm;
+import io.realm.RealmObject;
+import io.realm.RealmResults;
+import siawallet.Wallet;
 import xyz.gsora.siacold.ExplorerAPI.ExplorerAPI;
+import xyz.gsora.siacold.General.*;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,7 +31,11 @@ public class MainActivity extends AppCompatActivity {
     TabLayout tabLayout;
     @BindView(R.id.viewpager)
     ViewPager viewPager;
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
+
     private String TAG = this.getClass().getSimpleName();
+    private int howManyTimesIDidWrong;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        howManyTimesIDidWrong = 0;
 
         try {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -43,6 +57,57 @@ public class MainActivity extends AppCompatActivity {
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+        Crypto.showAuthenticationScreen(this, (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE));
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                switch (position) {
+                    case 0:
+                        fab.hide();
+                        break;
+                    case 1:
+                        fab.show();
+                        break;
+                    default:
+                        fab.hide();
+                        break;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
+        fab.setOnClickListener(view -> {
+            Crypto c = new Crypto(this, getApplicationContext(), null, null);
+            c.tryDecrypt();
+            Wallet w = new Wallet();
+            try {
+                w.setSeed(c.getDecryptedData());
+                Realm r = Utils.getRealm();
+                r.executeTransaction(realm -> {
+                    long lastInsertedId = realm.where(Address.class).findAllSorted("id").last().getId();
+                    realm.insertOrUpdate(new Address(w.getAddress(Utils.incrementSeedInt(this, "main")), lastInsertedId + 1));
+                });
+
+                RealmResults<Address> k = r.where(Address.class).findAllSorted("id");
+                for (RealmObject l : k) {
+                    Log.d("Realm objects", "onCreateView: ->" + l.toString());
+                }
+
+            } catch (NoDecryptedDataException e) {
+                e.printStackTrace();
+            }
+        });
 
         test();
     }
@@ -72,6 +137,19 @@ public class MainActivity extends AppCompatActivity {
         /*
         http://explore.sia.tech/js/hash.js -> search for "appendStat(table, 'Value', "
          */
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case SiaCold.REQUEST_CODE:
+                // Challenge completed, proceed with using cipher
+                if (resultCode != RESULT_OK) {
+                    howManyTimesIDidWrong++;
+                    Crypto.showAuthenticationScreen(this, (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE));
+                }
+                break;
+        }
     }
 
 }

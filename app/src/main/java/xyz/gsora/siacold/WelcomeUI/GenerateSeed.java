@@ -15,10 +15,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 import siawallet.Wallet;
-import xyz.gsora.siacold.Crypto;
+import xyz.gsora.siacold.General.*;
 import xyz.gsora.siacold.R;
-import xyz.gsora.siacold.SiaCold;
 
 import java.nio.charset.StandardCharsets;
 
@@ -93,6 +93,11 @@ public class GenerateSeed extends Fragment {
                 .setPositiveButton("Save", (dialog, id) -> {
                     c = new Crypto(getActivity(), getContext(), thisFragment, seed.getBytes(StandardCharsets.UTF_8));
                     c.tryEncrypt();
+                    try {
+                        setSeed(new Wallet(), c);
+                    } catch (NoDecryptedDataException e) {
+                        e.printStackTrace();
+                    }
                 });
 
         AlertDialog ad = builder.create();
@@ -107,12 +112,26 @@ public class GenerateSeed extends Fragment {
                 // Challenge completed, proceed with using cipher
                 if (resultCode == RESULT_OK) {
                     if (c.tryEncrypt()) {
-                        // Ugly, but it works wonders.
-                        ((WelcomeActivity) getActivity()).moveToNextPage();
+                        Wallet w = new Wallet();
+                        try {
+                            setSeed(w, c);
+                        } catch (NoDecryptedDataException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
                 break;
         }
+    }
+
+    private void setSeed(Wallet w, Crypto c) throws NoDecryptedDataException {
+        c.tryDecrypt();
+        w.setSeed(c.getDecryptedData());
+        Realm r = Utils.getRealm();
+        r.executeTransaction(realm -> {
+            realm.insertOrUpdate(new Address(w.getAddress(Utils.incrementSeedInt(getContext(), "main"))));
+        });
+        ((WelcomeActivity) getActivity()).moveToNextPage();
     }
 
 

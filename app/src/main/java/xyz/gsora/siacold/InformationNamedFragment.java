@@ -1,15 +1,17 @@
 package xyz.gsora.siacold;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static android.app.Activity.RESULT_OK;
+import net.glxn.qrgen.android.QRCode;
+import xyz.gsora.siacold.General.Address;
+import xyz.gsora.siacold.General.Crypto;
+import xyz.gsora.siacold.General.Utils;
 
 
 /**
@@ -19,6 +21,9 @@ public class InformationNamedFragment extends Fragment implements NamedFragment 
 
     private static final String FancyName = "Info";
     private static final String TAG = InformationNamedFragment.class.getSimpleName();
+
+    @BindView(R.id.qr)
+    ImageButton qr;
 
     private Crypto c;
 
@@ -33,6 +38,7 @@ public class InformationNamedFragment extends Fragment implements NamedFragment 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        c = new Crypto(getActivity(), getContext(), this, null);
     }
 
     @Override
@@ -40,19 +46,21 @@ public class InformationNamedFragment extends Fragment implements NamedFragment 
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_information, container, false);
         ButterKnife.bind(this, v);
+
+        qr.setImageBitmap(
+                QRCode.from(getLastAddress().getAddress()).withSize(750, 750).bitmap()
+        );
+
+        qr.setOnClickListener(vr -> {
+            Utils.shareAddress(getLastAddress(), getContext());
+        });
+
         return v;
     }
 
     @Override
     public void onActivityCreated(Bundle bundle) {
         super.onActivityCreated(bundle);
-        c = new Crypto(getActivity(), getContext(), this, null);
-        c.tryDecrypt();
-        try {
-            Log.d(TAG, "onActivityCreated: seed ->" + c.getDecryptedData());
-        } catch (NoDecryptedDataException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -60,21 +68,8 @@ public class InformationNamedFragment extends Fragment implements NamedFragment 
         return FancyName;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case SiaCold.REQUEST_CODE:
-                // Challenge completed, proceed with using cipher
-                if (resultCode == RESULT_OK) {
-                    if (c.tryDecrypt()) {
-                        try {
-                            Log.d(TAG, "onActivityCreated: seed ->" + c.getDecryptedData());
-                        } catch (NoDecryptedDataException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                break;
-        }
+    private Address getLastAddress() {
+        return Utils.getRealm().where(Address.class).findAllSorted("id").last();
+
     }
 }
