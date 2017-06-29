@@ -1,13 +1,51 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             tools:context="xyz.gsora.siacold.WelcomeUI.GoToMasterUI">
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="xyz.gsora.siacold.WelcomeUI.GoToMasterUI">
+
+    <TextView
+            android:text="@string/great"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/great"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            android:layout_above="@+id/textView2"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="23dp"/>
+
+    <ImageView
+            app:srcCompat="@drawable/checkbox_marked_circle_outline"
+            android:id="@+id/imageView"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_alignBottom="@+id/great"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="69dp"
+            android:contentDescription="@string/image_saying_ok"/>
 
     <Button
-        android:text="Button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button"/>
+            android:text="@string/go"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/gotoMain"
+            style="@android:style/Widget.Material.Button.Borderless.Colored"
+            android:textSize="18sp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="83dp"/>
 
+    <TextView
+            android:text="@string/you_ve_completed_the_setup_process_siacold_is_now_ready_to_use"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView2"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textAlignment="center"
+            android:layout_marginBottom="56dp"
+            android:layout_above="@+id/gotoMain"
+            android:layout_centerHorizontal="true"/>
 </RelativeLayout>

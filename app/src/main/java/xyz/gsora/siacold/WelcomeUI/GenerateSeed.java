@@ -3,11 +3,10 @@ package xyz.gsora.siacold.WelcomeUI;
 
 import android.app.KeyguardManager;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,14 +15,14 @@ import android.widget.Button;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.mtramin.rxfingerprint.EncryptionMethod;
-import com.mtramin.rxfingerprint.RxFingerprint;
-import io.reactivex.disposables.Disposable;
 import siawallet.Wallet;
 import xyz.gsora.siacold.Crypto;
 import xyz.gsora.siacold.R;
 import xyz.gsora.siacold.SiaCold;
-import xyz.gsora.siacold.Utils;
+
+import java.nio.charset.StandardCharsets;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,7 +35,6 @@ public class GenerateSeed extends Fragment {
     Button generateSeedButton;
 
     KeyguardManager keyguard;
-    String seed;
     Crypto c;
 
     public GenerateSeed() {
@@ -65,11 +63,7 @@ public class GenerateSeed extends Fragment {
         getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         keyguard = (KeyguardManager) getActivity().getSystemService(Context.KEYGUARD_SERVICE);
-        c = new Crypto(getActivity(), getContext(), this);
-        seed = null;
-        generateSeedButton.setOnClickListener(v -> {
-            generateSeed(v);
-        });
+        generateSeedButton.setOnClickListener(this::generateSeed);
     }
 
     public void generateSeed(View v) {
@@ -79,6 +73,8 @@ public class GenerateSeed extends Fragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        String seed = w.getSeed();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // Get the layout inflater
@@ -90,36 +86,33 @@ public class GenerateSeed extends Fragment {
             seedTxt.setText(w.getSeed());
         }
 
+        Fragment thisFragment = this;
+
         builder.setView(dia)
                 // Add action buttons
-                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        if (RxFingerprint.isAvailable(getActivity())) {
-                            Disposable disposable = RxFingerprint.encrypt(EncryptionMethod.RSA, getActivity(), SiaCold.KEY_NAME, w.getSeed())
-                                    .subscribe(encryptionResult -> {
-                                        switch (encryptionResult.getResult()) {
-                                            case FAILED:
-                                                Utils.toast(getActivity(),"Fingerprint not recognized, try again!");
-                                                break;
-                                            case HELP:
-                                                Utils.toast(getActivity(), encryptionResult.getMessage());
-                                                break;
-                                            case AUTHENTICATED:
-                                                Utils.toast(getActivity(), "Successfully authenticated!");
-                                                break;
-                                        }
-                                    }, throwable -> {
-                                        Log.e("ERROR", "authenticate", throwable);
-                                        Utils.toast(getActivity(), throwable.getMessage());
-                                    });
-                            disposable.dispose();
-                        }
-                    }
+                .setPositiveButton("Save", (dialog, id) -> {
+                    c = new Crypto(getActivity(), getContext(), thisFragment, seed.getBytes(StandardCharsets.UTF_8));
+                    c.tryEncrypt();
                 });
 
         AlertDialog ad = builder.create();
         ad.show();
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case SiaCold.REQUEST_CODE:
+                // Challenge completed, proceed with using cipher
+                if (resultCode == RESULT_OK) {
+                    if (c.tryEncrypt()) {
+                        // Ugly, but it works wonders.
+                        ((WelcomeActivity) getActivity()).moveToNextPage();
+                    }
+                }
+                break;
+        }
     }
 
 

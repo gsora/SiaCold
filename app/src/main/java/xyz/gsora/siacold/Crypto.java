@@ -11,15 +11,16 @@ import android.security.keystore.KeyPermanentlyInvalidatedException;
 import android.security.keystore.KeyProperties;
 import android.security.keystore.UserNotAuthenticatedException;
 import android.support.v4.app.Fragment;
-import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.security.spec.InvalidParameterSpecException;
 
 /**
  * Created by gsora on 6/27/17.
@@ -34,16 +35,18 @@ public class Crypto {
     private Activity activity;
     private Context ctx;
     private Fragment f;
+    private byte[] encryptionData;
+    private String decryptedData;
 
-    public Crypto(Activity activity, Context ctx, Fragment f) {
+    public Crypto(Activity activity, Context ctx, Fragment f, byte[] data) {
         this.ctx = ctx;
         this.activity = activity;
         this.f = f;
         keyguard = (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
-
+        encryptionData = data;
     }
 
-    public void showAuthenticationScreen(Fragment fragment) {
+    private void showAuthenticationScreen(Fragment fragment) {
         // Create the Confirm Credentials screen. You can customize the title and description. Or
         // we will provide a generic one for you if you leave it null
         Intent intent = keyguard.createConfirmDeviceCredentialIntent(null, null);
@@ -52,17 +55,13 @@ public class Crypto {
         }
     }
 
-    public void createKey() {
-        // Generate a key to decrypt payment credentials, tokens, etc.
-        // This will most likely be a registration step for the user when they are setting up your app.
+    private SecretKey createKey() {
         try {
             KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
             KeyGenerator keyGenerator = KeyGenerator.getInstance(
                     KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
 
-            // Set the alias of the entry in Android KeyStore where the key will appear
-            // and the constrains (purposes) in the constructor of the Builder
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 keyGenerator.init(new KeyGenParameterSpec.Builder("seed",
                         KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
@@ -73,7 +72,7 @@ public class Crypto {
                         .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
                         .build());
             }
-            keyGenerator.generateKey();
+            return keyGenerator.generateKey();
         } catch (NoSuchAlgorithmException | NoSuchProviderException
                 | InvalidAlgorithmParameterException | KeyStoreException
                 | CertificateException | IOException e) {
@@ -81,49 +80,31 @@ public class Crypto {
         }
     }
 
-    /**
-     * Tries to encrypt some data with the generated key in {@link #createKey} which is
-     * only works if the user has just authenticated via device credentials.
-     */
-    public boolean tryEncrypt(byte[] data) {
+    public boolean tryEncrypt() {
         try {
-            KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
-            keyStore.load(null);
-            SecretKey secretKey = (SecretKey) keyStore.getKey(SiaCold.KEY_NAME, null);
+            SecretKey secretKey = createKey(); // create a secret key
             Cipher cipher = Cipher.getInstance(
                     KeyProperties.KEY_ALGORITHM_AES + "/" + KeyProperties.BLOCK_MODE_CBC + "/"
                             + KeyProperties.ENCRYPTION_PADDING_PKCS7);
-
-            // Try encrypting something, it will only work if the user authenticated within
-            // the last AUTHENTICATION_DURATION_SECONDS seconds.
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            cipher.doFinal(data);
 
-            byte[] iv = cipher.getIV();
-            SharedPreferences.Editor editor = activity.getSharedPreferences("iv", Activity.MODE_PRIVATE).edit();
-            editor.putString("encryptionIv", Base64.encodeToString(iv, Base64.DEFAULT));
+            byte[] encData = cipher.doFinal(encryptionData);
+            byte[] iv = cipher.getParameters().getParameterSpec(IvParameterSpec.class).getIV();
+
+            SharedPreferences.Editor editor = Utils.getSharedPreferences(activity, "encryption").edit();
+            editor.putString("encryptionIv", Utils.base64Encode(iv));
+            editor.putString("encryptedSeed", Utils.base64Encode(encData));
             editor.apply();
 
-
-            // If the user has recently authenticated, you will reach here.
             return true;
         } catch (UserNotAuthenticatedException e) {
             // User is not authenticated, let's authenticate with device credentials.
-            Log.d(TAG, "tryEncrypt: " + e.toString());
             showAuthenticationScreen(f);
             return false;
         } catch (KeyPermanentlyInvalidatedException e) {
-            Log.d(TAG, "tryEncrypt: " + e.toString());
-            // This happens if the lock screen has been disabled or reset after the key was
-            // generated after the key was generated.
-            Toast.makeText(activity, "Keys are invalidated after created. Retry the purchase\n"
-                            + e.getMessage(),
-                    Toast.LENGTH_LONG).show();
             return false;
-        } catch (BadPaddingException | IllegalBlockSizeException | KeyStoreException
-                | CertificateException | UnrecoverableKeyException | IOException
-                | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
-            Log.d(TAG, "tryEncrypt: " + e.toString());
+        } catch (BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | InvalidParameterSpecException e) {
+            Log.d(TAG, "ABOMINAL ERROR OCCURRED: " + e.toString());
             throw new RuntimeException(e);
         }
     }
@@ -140,15 +121,13 @@ public class Crypto {
 
             // Try encrypting something, it will only work if the user authenticated within
             // the last AUTHENTICATION_DURATION_SECONDS seconds.
-            SharedPreferences s = activity.getSharedPreferences("iv", Activity.MODE_PRIVATE);
-            String strIv = s.getString("encryptionIv", null);
+            SharedPreferences s = Utils.getSharedPreferences(activity, "encryption");
+            String iv = s.getString("encryptionIv", null);
+            String encSeed = s.getString("encryptedSeed", null);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(Utils.base64Decode(iv)));
+            byte[] seed = cipher.doFinal(Utils.base64Decode(encSeed));
 
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(Base64.decode(strIv, Base64.DEFAULT)));
-            byte[] seed = cipher.doFinal();
-
-            Log.d("HEH", "tryDecrypt: " + String.valueOf(seed));
-
-            // If the user has recently authenticated, you will reach here.
+            decryptedData = new String(seed, StandardCharsets.UTF_8);
             return true;
         } catch (UserNotAuthenticatedException e) {
             // User is not authenticated, let's authenticate with device credentials.
@@ -157,18 +136,25 @@ public class Crypto {
         } catch (KeyPermanentlyInvalidatedException e) {
             // This happens if the lock screen has been disabled or reset after the key was
             // generated after the key was generated.
-            Toast.makeText(ctx, "Keys are invalidated after created. Retry the purchase\n"
+            Toast.makeText(ctx, "Keys are invalidated after created.\n"
                             + e.getMessage(),
                     Toast.LENGTH_LONG).show();
             return false;
         } catch (BadPaddingException | IllegalBlockSizeException | KeyStoreException
                 | CertificateException | UnrecoverableKeyException | IOException
                 | NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
-            Log.d("HEHE", "tryDecrypt: " + e.toString());
             throw new RuntimeException(e);
         } catch (InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
         return true;
+    }
+
+    public String getDecryptedData() throws NoDecryptedDataException {
+        if (decryptedData == null) {
+            throw new NoDecryptedDataException("no decrypted data available, have you called tryDecrypt()?");
+        }
+
+        return decryptedData;
     }
 }
