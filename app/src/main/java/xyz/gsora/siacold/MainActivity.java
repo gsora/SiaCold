@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
 
         Crypto.showAuthenticationScreen(this, (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE));
 
+        fab.hide();
+
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
