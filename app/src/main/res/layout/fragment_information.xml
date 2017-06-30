@@ -5,6 +5,15 @@
                 android:layout_height="match_parent"
                 tools:context="xyz.gsora.siacold.InformationNamedFragment">
 
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/refreshInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">4
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <me.grantland.widget.AutofitLayout
         android:id="@+id/autofitMain"
@@ -24,8 +33,8 @@
             android:layout_marginRight="16dp"
             android:layout_marginTop="30dp"
             android:maxLines="1"
-            android:text="1565 SC"
-            android:textSize="75dp"/>
+            android:textAlignment="center"
+            android:textSize="75sp"/>
     </me.grantland.widget.AutofitLayout>
 
     <ImageButton

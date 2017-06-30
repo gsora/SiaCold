@@ -5,35 +5,46 @@
                 android:layout_height="match_parent"
                 tools:context="xyz.gsora.siacold.WelcomeUI.GenerateSeed">
 
-    <TextView
-            android:layout_width="match_parent"
-            android:id="@+id/infotextseed"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:text="@string/we_will_now_generate_the_seed_for_your_wallet_n_nwrite_it_down_and_keep_it_safe_you_ll_be_able_to_retrieve_your_coins_even_if_this_application_will_stop_working_n_npress_the_button_when_you_re_ready_to_go"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+    <Button
+        android:id="@+id/generateSeedButton"
+        style="@android:style/Widget.Material.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/infotextseed"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="31dp"
+        android:text="@string/generate_seed"
+        android:textSize="18sp"/>
 
     <Button
-            android:text="@string/generate_seed"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/generateSeedButton"
-            android:layout_marginTop="31dp"
-            android:layout_below="@+id/infotextseed"
-            android:layout_centerHorizontal="true"
-            style="@android:style/Widget.Material.Button.Borderless.Colored"
-            android:textSize="18sp"/>
+        android:id="@+id/importSeed"
+        style="@android:style/Widget.Material.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/generateSeedButton"
+        android:layout_centerHorizontal="true"
+        android:text="@string/import_an_existing_seed"
+        android:textSize="18sp"/>
 
     <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_security_black_48dp"
-            android:layout_above="@+id/infotextseed"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="41dp"
-            android:id="@+id/imageView5"/>
+        android:id="@+id/imageView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="42dp"
+        app:srcCompat="@drawable/ic_security_black_48dp"/>
+
+    <TextView
+        android:id="@+id/infotextseed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/imageView5"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="73dp"
+        android:text="@string/we_will_now_generate_the_seed_for_your_wallet_n_nwrite_it_down_and_keep_it_safe_you_ll_be_able_to_retrieve_your_coins_even_if_this_application_will_stop_working_n_npress_the_button_when_you_re_ready_to_go"
+        android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
 
 </RelativeLayout>

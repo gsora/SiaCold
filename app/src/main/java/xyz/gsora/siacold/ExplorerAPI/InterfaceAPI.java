@@ -12,5 +12,5 @@ import retrofit2.http.Path;
  */
 public interface InterfaceAPI {
     @GET("explorer/hashes/{unlockHash}")
-    Observable<Response<Block>> getUnlockHashInfo(@Path("unlockHash") String unlockHash);
+    Observable<Response<UnlockHash>> getUnlockHashTransactionsInfo(@Path("unlockHash") String unlockHash);
 }

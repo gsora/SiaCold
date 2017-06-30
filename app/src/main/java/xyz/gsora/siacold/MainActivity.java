@@ -10,17 +10,10 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
-import io.realm.RealmObject;
-import io.realm.RealmResults;
 import siawallet.Wallet;
-import xyz.gsora.siacold.ExplorerAPI.ExplorerAPI;
 import xyz.gsora.siacold.General.*;
 
 public class MainActivity extends AppCompatActivity {
@@ -99,46 +92,18 @@ public class MainActivity extends AppCompatActivity {
                 r.executeTransaction(realm -> {
                     long lastInsertedId = realm.where(Address.class).findAllSorted("id").last().getId();
                     realm.insertOrUpdate(new Address(w.getAddress(Utils.incrementSeedInt(this, "main")), lastInsertedId + 1));
+                    realm.insertOrUpdate(new Address("c269433f56c29d752ce59895edce82fa992f9dcdc2734a8e6a9ee337b7e44de33c3afe193883", lastInsertedId + 1));
+
                 });
-
-                RealmResults<Address> k = r.where(Address.class).findAllSorted("id");
-                for (RealmObject l : k) {
-                    Log.d("Realm objects", "onCreateView: ->" + l.toString());
-                }
-
             } catch (NoDecryptedDataException e) {
                 e.printStackTrace();
             }
         });
-
-        test();
     }
 
     private void setupViewPager(ViewPager viewPager) {
         FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager());
         viewPager.setAdapter(adapter);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.activity_main_menu, menu);
-        return true;
-    }
-
-    public void test() {
-        String addr = "c269433f56c29d752ce59895edce82fa992f9dcdc2734a8e6a9ee337b7e44de33c3afe193883";
-        ExplorerAPI e = ExplorerAPI.getInstance();
-        e.getUnlockHashInfo(addr)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(data -> {
-                    Log.d(TAG, "reply -> " + data.body().getTotalcoins());
-                });
-
-        /*
-        http://explore.sia.tech/js/hash.js -> search for "appendStat(table, 'Value', "
-         */
     }
 
     @Override

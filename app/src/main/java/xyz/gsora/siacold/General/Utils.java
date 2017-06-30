@@ -40,6 +40,13 @@ public class Utils {
                         .build());
     }
 
+    public static void saveToPrefs(Context ctx, String key, String value) {
+        SharedPreferences s = getSharedPreferences(ctx, "main");
+        SharedPreferences.Editor se = s.edit();
+        se.putString(key, value);
+        se.apply();
+    }
+
     public static void shareAddress(Address a, Context c) {
         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");

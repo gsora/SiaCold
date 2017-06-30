@@ -4,9 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.RealmResults;
@@ -53,6 +51,8 @@ public class AddressesNamedFragment extends Fragment implements NamedFragment {
         layoutManager.scrollToPosition(0);
         addressesRecyclerView.setLayoutManager(layoutManager);
 
+        setHasOptionsMenu(true);
+
         return v;
     }
 
@@ -60,6 +60,12 @@ public class AddressesNamedFragment extends Fragment implements NamedFragment {
     @Override
     public String getFragmentFancyName() {
         return FancyName;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.addresses_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
 }

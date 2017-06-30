@@ -20,7 +20,7 @@ public class Rawtransaction {
     @SerializedName("siacoininputs")
     private Object mSiacoininputs;
     @SerializedName("siacoinoutputs")
-    private Object mSiacoinoutputs;
+    private Siacoinoutput[] mSiacoinoutputs;
     @SerializedName("siafundinputs")
     private Object mSiafundinputs;
     @SerializedName("siafundoutputs")
@@ -70,11 +70,11 @@ public class Rawtransaction {
         mSiacoininputs = siacoininputs;
     }
 
-    public Object getSiacoinoutputs() {
+    public Siacoinoutput[] getSiacoinoutputs() {
         return mSiacoinoutputs;
     }
 
-    public void setSiacoinoutputs(Object siacoinoutputs) {
+    public void setSiacoinoutputs(Siacoinoutput[] siacoinoutputs) {
         mSiacoinoutputs = siacoinoutputs;
     }
 

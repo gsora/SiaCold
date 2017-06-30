@@ -2,16 +2,16 @@ package xyz.gsora.siacold;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.*;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import net.glxn.qrgen.android.QRCode;
-import xyz.gsora.siacold.General.Address;
-import xyz.gsora.siacold.General.Crypto;
-import xyz.gsora.siacold.General.Utils;
+import xyz.gsora.siacold.General.*;
 
 
 /**
@@ -24,6 +24,12 @@ public class InformationNamedFragment extends Fragment implements NamedFragment 
 
     @BindView(R.id.qr)
     ImageButton qr;
+
+    @BindView(R.id.addressText)
+    TextView addressText;
+
+    @BindView(R.id.refreshInfo)
+    SwipeRefreshLayout refreshInfo;
 
     private Crypto c;
 
@@ -55,6 +61,15 @@ public class InformationNamedFragment extends Fragment implements NamedFragment 
             Utils.shareAddress(getLastAddress(), getContext());
         });
 
+        String siavalue = Utils.getSharedPreferences(getContext(), "main").getString("siavalue", "0 SC");
+        addressText.setText(siavalue);
+
+        refreshInfo.setEnabled(false);
+
+        writeAmount();
+
+        setHasOptionsMenu(true);
+
         return v;
     }
 
@@ -70,6 +85,41 @@ public class InformationNamedFragment extends Fragment implements NamedFragment 
 
     private Address getLastAddress() {
         return Utils.getRealm().where(Address.class).findAllSorted("id").last();
-
     }
+
+    public void writeAmount() {
+        refreshInfo.setEnabled(true);
+        refreshInfo.setRefreshing(true);
+        AddressesBalanceFetcher abf = new AddressesBalanceFetcher();
+
+        abf.fetch(Utils.getRealm().copyFromRealm(Utils.getRealm().where(Address.class).findAllAsync()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(data -> {
+                    String siaReadableCoins = SiaValue.readableCoins(data);
+                    Utils.saveToPrefs(getContext(), "siavalue", siaReadableCoins);
+                    addressText.setText(siaReadableCoins);
+                    refreshInfo.setEnabled(false);
+                    refreshInfo.setRefreshing(false);
+                });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.information_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.refresh:
+                writeAmount();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+
 }

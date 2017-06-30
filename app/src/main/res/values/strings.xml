@@ -13,4 +13,6 @@
     <string name="generate_seed">Generate seed</string>
     <string name="image_saying_ok">Image saying ok.</string>
     <string name="title_activity_main2">Main2Activity</string>
+    <string name="import_an_existing_seed">Import an existing seed</string>
+    <string name="write_your_seed_here">Write your seed here</string>
 </resources>

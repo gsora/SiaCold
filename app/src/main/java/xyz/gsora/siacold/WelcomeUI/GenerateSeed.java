@@ -7,11 +7,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,6 +35,9 @@ public class GenerateSeed extends Fragment {
 
     @BindView(R.id.generateSeedButton)
     Button generateSeedButton;
+
+    @BindView(R.id.importSeed)
+    Button importSeed;
 
     KeyguardManager keyguard;
     Crypto c;
@@ -64,6 +69,36 @@ public class GenerateSeed extends Fragment {
 
         keyguard = (KeyguardManager) getActivity().getSystemService(Context.KEYGUARD_SERVICE);
         generateSeedButton.setOnClickListener(this::generateSeed);
+        importSeed.setOnClickListener(this::showImportSeed);
+    }
+
+    public void importSeed(View v) {
+
+    }
+
+    public void showImportSeed(View v) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        // Get the layout inflater
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View dia = inflater.inflate(R.layout.import_seed, null);
+        EditText e = (EditText) dia.findViewById(R.id.importSeedText);
+        Log.d(TAG, "showImportSeed: e.gettext -> " + e.getText().toString());
+
+        Fragment thisFragment = this;
+        builder.setView(dia)
+                // Add action buttons
+                .setPositiveButton("Save", (dialog, id) -> {
+                    c = new Crypto(getActivity(), getContext(), thisFragment, e.getText().toString().getBytes(StandardCharsets.UTF_8));
+                    c.tryEncrypt();
+                    try {
+                        setSeed(new Wallet(), c);
+                    } catch (NoDecryptedDataException ee) {
+                        ee.printStackTrace();
+                    }
+                });
+
+        AlertDialog ad = builder.create();
+        ad.show();
     }
 
     public void generateSeed(View v) {
