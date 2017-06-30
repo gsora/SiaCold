@@ -43,6 +43,7 @@ public class AddressesListAdapter extends RealmRecyclerViewAdapter<Address, Addr
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.addressText.setText(getItem(position).getAddress());
+        holder.addressDescription.setText(getItem(position).getDescription());
         holder.addressText.setOnClickListener(l -> {
             Utils.shareAddress(getItem(position), parentCtx);
         });
@@ -58,6 +59,9 @@ public class AddressesListAdapter extends RealmRecyclerViewAdapter<Address, Addr
 
         @BindView(R.id.addressText)
         TextView addressText;
+
+        @BindView(R.id.addressDescription)
+        TextView addressDescription;
 
         public ViewHolder(View v) {
             super(v);

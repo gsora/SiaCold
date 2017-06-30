@@ -7,9 +7,13 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
@@ -83,22 +87,39 @@ public class MainActivity extends AppCompatActivity {
         });
 
         fab.setOnClickListener(view -> {
-            Crypto c = new Crypto(this, getApplicationContext(), null, null);
-            c.tryDecrypt();
-            Wallet w = new Wallet();
-            try {
-                w.setSeed(c.getDecryptedData());
-                Realm r = Utils.getRealm();
-                r.executeTransaction(realm -> {
-                    long lastInsertedId = realm.where(Address.class).findAllSorted("id").last().getId();
-                    realm.insertOrUpdate(new Address(w.getAddress(Utils.incrementSeedInt(this, "main")), lastInsertedId + 1));
-                    realm.insertOrUpdate(new Address("c269433f56c29d752ce59895edce82fa992f9dcdc2734a8e6a9ee337b7e44de33c3afe193883", lastInsertedId + 1));
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            // Get the layout inflater
+            LayoutInflater inflater = this.getLayoutInflater();
+            View dia = inflater.inflate(R.layout.description_add_address, null);
 
-                });
-            } catch (NoDecryptedDataException e) {
-                e.printStackTrace();
-            }
+            builder.setView(dia)
+                    // Add action buttons
+                    .setPositiveButton("Save", (dialog, id) -> {
+                        EditText descriptionET = (EditText) dia.findViewById(R.id.addressDescriptionText);
+                        String description = descriptionET.getText().toString();
+                        saveAddress(description);
+                    });
+
+            AlertDialog ad = builder.create();
+            ad.show();
         });
+    }
+
+    private void saveAddress(String description) {
+        Crypto c = new Crypto(this, getApplicationContext(), null, null);
+        c.tryDecrypt();
+        Wallet w = new Wallet();
+        try {
+            w.setSeed(c.getDecryptedData());
+            Realm r = Utils.getRealm();
+            r.executeTransaction(realm -> {
+                long lastInsertedId = realm.where(Address.class).findAllSorted("id").last().getId();
+                realm.insertOrUpdate(new Address(w.getAddress(Utils.incrementSeedInt(this, "main")), description, lastInsertedId + 1));
+                //realm.insertOrUpdate(new Address("c269433f56c29d752ce59895edce82fa992f9dcdc2734a8e6a9ee337b7e44de33c3afe193883", lastInsertedId + 1));
+            });
+        } catch (NoDecryptedDataException e) {
+            e.printStackTrace();
+        }
     }
 
     private void setupViewPager(ViewPager viewPager) {

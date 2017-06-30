@@ -109,8 +109,6 @@ public class GenerateSeed extends Fragment {
             e.printStackTrace();
         }
 
-        String seed = w.getSeed();
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -126,6 +124,7 @@ public class GenerateSeed extends Fragment {
         builder.setView(dia)
                 // Add action buttons
                 .setPositiveButton("Save", (dialog, id) -> {
+                    String seed = w.getSeed();
                     c = new Crypto(getActivity(), getContext(), thisFragment, seed.getBytes(StandardCharsets.UTF_8));
                     c.tryEncrypt();
                     try {
@@ -164,7 +163,7 @@ public class GenerateSeed extends Fragment {
         w.setSeed(c.getDecryptedData());
         Realm r = Utils.getRealm();
         r.executeTransaction(realm -> {
-            realm.insertOrUpdate(new Address(w.getAddress(Utils.incrementSeedInt(getContext(), "main"))));
+            realm.insertOrUpdate(new Address(w.getAddress(Utils.incrementSeedInt(getContext(), "main")), "Main address", 0));
         });
         ((WelcomeActivity) getActivity()).moveToNextPage();
     }

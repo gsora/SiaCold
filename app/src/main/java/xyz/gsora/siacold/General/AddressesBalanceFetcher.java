@@ -34,6 +34,9 @@ public class AddressesBalanceFetcher {
                         });
             }
 
+            if (finalResult == null) {
+                finalResult = 0.0;
+            }
             e.onNext(finalResult);
             e.onComplete();
         });
