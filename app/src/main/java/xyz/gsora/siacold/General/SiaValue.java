@@ -27,7 +27,7 @@ public class SiaValue {
             for (int i1 = 0, siacoinoutputsLength = siacoinoutputs.length; i1 < siacoinoutputsLength; i1++) {
                 Siacoinoutput so = siacoinoutputs[i1];
                 if (so.getUnlockhash().equals(hash)) {
-                    result = Double.valueOf(so.getValue().trim());
+                    result += Double.valueOf(so.getValue().trim());
                 }
             }
         }
@@ -36,9 +36,9 @@ public class SiaValue {
 
     public static String readableCoins(Double hastings) {
         if (hastings < 1000000000000000000000000.0f) {
-            return "0 siacoin";
+            return "0 SC";
         } else if (hastings >= 1000000000000000000000000.0f && hastings <= 2000000000000000000000000.0f) {
-            return "1 siacoin";
+            return "1 SC";
         } else if (hastings < 1000000000000000000000000000000000.0f) {
             return String.format("%.2f SC", (hastings / 1000000000000000000000000.0f));
         } else {

@@ -1,8 +1,12 @@
 package xyz.gsora.siacold;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.preference.PreferenceManager;
+import android.util.Log;
 import android.view.*;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -11,13 +15,14 @@ import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import net.glxn.qrgen.android.QRCode;
+import xyz.gsora.siacold.AppPreferences.AppPreferencesActivity;
 import xyz.gsora.siacold.General.*;
 
 
 /**
  * A simple {@link Fragment} subclass, to handle wallet informations and such.
  */
-public class InformationNamedFragment extends Fragment implements NamedFragment {
+public class InformationNamedFragment extends Fragment implements NamedFragment, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String FancyName = "Info";
     private static final String TAG = InformationNamedFragment.class.getSimpleName();
@@ -57,12 +62,13 @@ public class InformationNamedFragment extends Fragment implements NamedFragment 
                 QRCode.from(getLastAddress().getAddress()).withSize(750, 750).bitmap()
         );
 
-        qr.setOnClickListener(vr -> {
-            Utils.shareAddress(getLastAddress(), getContext());
-        });
+        qr.setOnClickListener(vr -> Utils.shareAddress(new Address(Utils.getQRAddressFromPrefs(getContext())), getContext()));
 
         String siavalue = Utils.getSharedPreferences(getContext(), "main").getString("siavalue", "0 SC");
         addressText.setText(siavalue);
+
+        SharedPreferences asd = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        asd.registerOnSharedPreferenceChangeListener(this);
 
         refreshInfo.setEnabled(false);
 
@@ -104,6 +110,11 @@ public class InformationNamedFragment extends Fragment implements NamedFragment 
                 });
     }
 
+    public void openSettings() {
+        Intent i = new Intent(getActivity(), AppPreferencesActivity.class);
+        startActivity(i);
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.information_menu, menu);
@@ -116,10 +127,23 @@ public class InformationNamedFragment extends Fragment implements NamedFragment 
             case R.id.refresh:
                 writeAmount();
                 return true;
+            case R.id.settings:
+                openSettings();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
 
         }
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals("qraddress")) {
+            Log.d(TAG, "onSharedPreferenceChanged: called modify on qraddress");
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
+            qr.setImageBitmap(
+                    QRCode.from(sharedPref.getString("qraddress", "")).withSize(750, 750).bitmap()
+            );
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package xyz.gsora.siacold.Addresses;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
@@ -9,6 +10,7 @@ import android.view.*;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.RealmResults;
+import xyz.gsora.siacold.AppPreferences.AppPreferencesActivity;
 import xyz.gsora.siacold.General.Address;
 import xyz.gsora.siacold.General.Utils;
 import xyz.gsora.siacold.NamedFragment;
@@ -71,6 +73,18 @@ public class AddressesNamedFragment extends Fragment implements NamedFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.addresses_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.settingsAddr:
+                startActivity(new Intent(getActivity(), AppPreferencesActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
     }
 
 }

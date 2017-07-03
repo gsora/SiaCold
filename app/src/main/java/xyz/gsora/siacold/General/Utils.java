@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Base64;
 import android.widget.Toast;
 import io.realm.Realm;
@@ -38,6 +39,11 @@ public class Utils {
                 new RealmConfiguration.Builder()
                         .deleteRealmIfMigrationNeeded()
                         .build());
+    }
+
+    public static String getQRAddressFromPrefs(Context ctx) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(ctx);
+        return sharedPref.getString("qraddress", "");
     }
 
     public static void saveToPrefs(Context ctx, String key, String value) {

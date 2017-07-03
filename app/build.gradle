@@ -10,15 +10,36 @@ android {
         minSdkVersion 23
         targetSdkVersion 25
         versionCode 1
-        versionName "1.0"
+        versionName "0.1"
+        setProperty("archivesBaseName", "SiaCold")
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        //noinspection GroovyMissingReturnStatement
+        debug {
+            versionNameSuffix ".debug." + getVersionName()
+        }
+
+        applicationVariants.all { variant ->
+            if (variant.buildType.name == 'release') {
+                variant.mergedFlavor.versionName = android.defaultConfig.versionName
+            }
+
+            if (variant.buildType.name == 'debug') {
+                variant.mergedFlavor.versionName = android.defaultConfig.versionName
+            }
+        }
+        applicationVariants.all { variant ->
+            variant.outputs.each { output ->
+                output.outputFile = new File( output.outputFile.parent,output.outputFile.name.replace(".apk", "-${variant.versionName}.apk"))
+            }
         }
     }
+
+    lintOptions {
+        abortOnError false
+    }
+
     compileOptions {
         targetCompatibility 1.8
         sourceCompatibility 1.8
@@ -49,4 +70,27 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
     compile 'io.realm:android-adapters:2.1.0'
     compile 'com.squareup.okhttp3:logging-interceptor:3.8.0'
+    compile 'com.android.support:preference-v7:25.3.1'
+    compile 'com.android.support:preference-v14:25.3.1'
+}
+
+def renameAPK(variant, defaultConfig, buildType) {
+    variant.outputs.each { output ->
+        def formattedDate = new Date().format('yyMMdd-hhmm')
+
+        def file = output.packageApplication.outputFile
+        //noinspection GroovyAssignabilityCheck,GroovyAssignabilityCheck
+        def fileName = applicationName + "_v" + defaultConfig.versionName + "-" + getVersionName() + "_" + formattedDate + "_" + buildType + ".apk"
+        //noinspection GroovyAssignabilityCheck
+        output.packageApplication.outputFile = new File(file.parent, fileName)
+    }
+}
+
+def getVersionName() {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short' , 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
 }

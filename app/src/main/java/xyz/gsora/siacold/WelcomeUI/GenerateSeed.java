@@ -4,10 +4,11 @@ package xyz.gsora.siacold.WelcomeUI;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
+import android.support.v7.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,8 @@ import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
+ *
+ * Generate seed friendly UI.
  */
 public class GenerateSeed extends Fragment {
 
@@ -82,7 +85,6 @@ public class GenerateSeed extends Fragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View dia = inflater.inflate(R.layout.import_seed, null);
         EditText e = (EditText) dia.findViewById(R.id.importSeedText);
-        Log.d(TAG, "showImportSeed: e.gettext -> " + e.getText().toString());
 
         Fragment thisFragment = this;
         builder.setView(dia)
@@ -158,13 +160,23 @@ public class GenerateSeed extends Fragment {
         }
     }
 
+    private void writeDefaultPreferences(String address) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences.Editor spEdit = sharedPref.edit();
+        spEdit.putBoolean("askForPasscode", true);
+        spEdit.putString("qraddress", address);
+        spEdit.apply();
+    }
+
     private void setSeed(Wallet w, Crypto c) throws NoDecryptedDataException {
         c.tryDecrypt();
         w.setSeed(c.getDecryptedData());
         Realm r = Utils.getRealm();
+        String address = w.getAddress(Utils.incrementSeedInt(getContext(), "main"));
         r.executeTransaction(realm -> {
-            realm.insertOrUpdate(new Address(w.getAddress(Utils.incrementSeedInt(getContext(), "main")), "Main address", 0));
+            realm.insertOrUpdate(new Address(address, "Main address", 0));
         });
+        writeDefaultPreferences(address);
         ((WelcomeActivity) getActivity()).moveToNextPage();
     }
 

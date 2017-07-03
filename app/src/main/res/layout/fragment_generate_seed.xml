@@ -24,16 +24,8 @@
         android:layout_below="@+id/generateSeedButton"
         android:layout_centerHorizontal="true"
         android:text="@string/import_an_existing_seed"
-        android:textSize="18sp"/>
-
-    <ImageView
-        android:id="@+id/imageView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="42dp"
-        app:srcCompat="@drawable/ic_security_black_48dp"/>
+        android:textSize="18sp"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/infotextseed"
@@ -46,5 +38,14 @@
         android:layout_marginTop="73dp"
         android:text="@string/we_will_now_generate_the_seed_for_your_wallet_n_nwrite_it_down_and_keep_it_safe_you_ll_be_able_to_retrieve_your_coins_even_if_this_application_will_stop_working_n_npress_the_button_when_you_re_ready_to_go"
         android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="101dp"
+        app:srcCompat="@drawable/ic_security_black_48dp"/>
 
 </RelativeLayout>
