@@ -9,24 +9,21 @@ android:
   - tools
   - platform-tools
   - tools
-  - build-tools-25.0.3
+  - build-tools-25.0.3A
   - android-25
   - extra-google-google_play_services
   - extra-google-m2repository
   - extra-android-m2repository
 script:
 - "./gradlew clean assembleDebug"
-
 before_deploy:
 - cd app/build/outputs/apk/
-
 deploy:
   provider: releases
   api_key:
-    secure: uG8yS3GQmO/Mpe9uWVkC7vzF4BbNOMsvtkC55Fh4ceclGjYAhBCUZuAQFyToC2xVcw1UaX2JkV8cHuDqrKBfodt19Ydhq0ob+80v9mZjCuCujGTG0deRQ48UihbHojw+02sMiaSj/QcBHLFTGuaV8sdkamks1sAgISkYEje7AZDl+hxDxRPklQwr9Z/k3WOIMFVyVr29mLLf0X8KIRiVnEsbxL9wVRTYW6st9qCNhlSFkYqZVl2XeGoJhfvy4D2j4YycS8HPTX1KwaFJCIh6ApA6VWuVLxh9ZltYN+oW3zhZvzKfExr50SstNKe9kVBB1T879+qO9c40el+I5OZhl8f4u6exdodVLSvMqNumlA+lqivAC0lTxk4Wm2iZCFQqDderKJLAPcykejenPqC4UccouWJxbjISXLFlOTSg3wRAE5xUETuRZpZA/dHA2E8iiEqsf4wGWRB82qsLtF/yhJcjnkse+dLqO7bKHuEw1jdd8pySK4BXoLu9+lvrLyh+x2sfZxpCbLcloat8tGTZHbnfYSiJEmVGpkrDQC17KZNLo3p4wSQtRgmxedKoUkrvsv14DI2faF2j5yuRl9kQ4ICcwObPUvSgVmVkqOBEE2MBogTgoGYrYJ5Qsc71GZRd1fV8u+FG1wXf74g3ZGpJTSY+b4G7zZaPHgeRmVriLOY=
+    secure: END3fphXXa0JNrvFdYTjwKAnoKlChvN0ijbzszte8rOfwt0Sao8tlfoRjP43bRdld4f4q+5YXnXj2KjT23vMbwwM74Ix3adTCADWAyAfyhzGpgoYjq/1dp5G4Ap7SLG/6hrnYFQufgYorge6iZQMY83EHdHRCPMUDMghPvIBu3WkuJ1a9hn3eC0GnJe6myISqFHrHLoBvK/keLl+SxU4YKxxo81vF6KV1cFCo9AuEkf9GG+cOVIt2VKGAnePeI6TW3KyDV7Ay4kG+wjmHtAMC8bKClkQIEaHivESj5vI7+sAAcM7rjp7mJYr+5SX6HcXkg8XwSo2HTsUBb3jNAYruB/I7kueDFzsCmVtncHFF7qudOoz0NrrwUpZHcNnI8hAdl1cEBDe1tEW5RbwwlmlxSLYq8OYpXYChGsCQTQky+9izCST2GmReM8hZ/SxG9IlA9KmVqogN9fzHYkGPQhDVbH1IyH/ytRFVojfMlTkejSRbRHLguq2VUyNPXCganH1G7FVsmUnSAjH2t4+UwBtziWA0IzLDzywg+kBS7JvLXSCRb+wyiSgtEYP1NBetVJE5Xh8ot9W6V3odyynCG/eoP8A9Gk2ZgaKymlpawD4q5McZ1MLzrDiFR1Cb2CTJxL+g7mR3Xx57oGE0ErtgrwwhA7AeZzD54lR4BOA3/JZ1SE=
   skip_cleanup: true
   file_glob: true
   file: SiaCold-debug*
   on:
-    tags: true
     repo: gsora/SiaCold
