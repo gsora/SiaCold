@@ -15,6 +15,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import com.mikepenz.aboutlibraries.Libs;
+import com.mikepenz.aboutlibraries.LibsBuilder;
 import io.realm.RealmResults;
 import xyz.gsora.siacold.General.Address;
 import xyz.gsora.siacold.General.SiaCold;
@@ -73,6 +75,14 @@ public class AppPreferencesFragment extends PreferenceFragmentCompat {
         Preference d = findPreference("donate");
         d.setOnPreferenceClickListener(k -> {
             showDonationDialog();
+            return false;
+        });
+
+        Preference k = findPreference("openlicenses");
+        k.setOnPreferenceClickListener(o -> {
+            new LibsBuilder()
+                    .withActivityStyle(Libs.ActivityStyle.LIGHT_DARK_TOOLBAR)
+                    .start(getActivity());
             return false;
         });
     }
