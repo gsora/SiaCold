@@ -1,0 +1,32 @@
+language: android
+sudo: required
+jdk: oraclejdk8
+before_cache: "-rm -f $HOME/.gradle/caches/modules-2/modules-2.lock -rm -fr $HOME/.gradle/caches/*/plugin-resolution/"
+cache:
+  directories: "-$HOME/.gradle/caches/ -$HOME/.gradle/wrapper/"
+android:
+  components:
+  - tools
+  - platform-tools
+  - tools
+  - build-tools-25.0.2
+  - android-25
+  - extra-google-google_play_services
+  - extra-google-m2repository
+  - extra-android-m2repository
+script:
+- "./gradlew clean assembleDebug"
+
+before_deploy:
+- cd app/build/outputs/apk/
+
+deploy:
+  provider: releases
+  api_key:
+    secure: uG8yS3GQmO/Mpe9uWVkC7vzF4BbNOMsvtkC55Fh4ceclGjYAhBCUZuAQFyToC2xVcw1UaX2JkV8cHuDqrKBfodt19Ydhq0ob+80v9mZjCuCujGTG0deRQ48UihbHojw+02sMiaSj/QcBHLFTGuaV8sdkamks1sAgISkYEje7AZDl+hxDxRPklQwr9Z/k3WOIMFVyVr29mLLf0X8KIRiVnEsbxL9wVRTYW6st9qCNhlSFkYqZVl2XeGoJhfvy4D2j4YycS8HPTX1KwaFJCIh6ApA6VWuVLxh9ZltYN+oW3zhZvzKfExr50SstNKe9kVBB1T879+qO9c40el+I5OZhl8f4u6exdodVLSvMqNumlA+lqivAC0lTxk4Wm2iZCFQqDderKJLAPcykejenPqC4UccouWJxbjISXLFlOTSg3wRAE5xUETuRZpZA/dHA2E8iiEqsf4wGWRB82qsLtF/yhJcjnkse+dLqO7bKHuEw1jdd8pySK4BXoLu9+lvrLyh+x2sfZxpCbLcloat8tGTZHbnfYSiJEmVGpkrDQC17KZNLo3p4wSQtRgmxedKoUkrvsv14DI2faF2j5yuRl9kQ4ICcwObPUvSgVmVkqOBEE2MBogTgoGYrYJ5Qsc71GZRd1fV8u+FG1wXf74g3ZGpJTSY+b4G7zZaPHgeRmVriLOY=
+  skip_cleanup: true
+  file_glob: true
+  file: SiaCold-debug*
+  on:
+    tags: true
+    repo: gsora/SiaCold

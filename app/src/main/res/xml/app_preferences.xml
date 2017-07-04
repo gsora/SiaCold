@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="General">
+
+        <android.support.v7.preference.SwitchPreferenceCompat
+            android:key="askForPasscode"
+            android:title="Passcode on startup"
+            android:summary="Ask for authentication when the application starts"
+            android:defaultValue="true" />
+
+        <android.support.v7.preference.ListPreference
+            android:key="qraddress"
+            android:title="QR Code address"
+            android:summary="Address to be rendered as a QR Code"/>
+
+    </android.support.v7.preference.PreferenceCategory>
+
+    <android.support.v7.preference.PreferenceCategory
+        android:title="About">
+
+        <Preference android:title="About me"
+                    android:summary="GitHub, social accounts and so on!"
+                    android:key="aboutMe"/>
+
+        <Preference android:title="Donate"
+                    android:summary="Donate SiaCoin, Ethereum or Bitcoin if this application was useful, if you want!"
+                    android:key="donate"/>
+
+        <Preference android:title="Open-source attributions"
+                    android:summary="All the open-source bits and bolts used to make SiaCold possible"
+                    android:key="openlicenses"/>
+    </android.support.v7.preference.PreferenceCategory>
+
+
+</android.support.v7.preference.PreferenceScreen>

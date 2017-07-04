@@ -16,4 +16,6 @@
     <string name="import_an_existing_seed">Import an existing seed</string>
     <string name="write_your_seed_here">Write your seed here</string>
     <string name="write_your_description_here">Write your description here</string>
+    <string name="megsoraxyz">https://me.gsora.xyz</string>
+    <string name="click_on_any_of_these_icons_to_copy_the_address_in_the_clipboard">Click on any of these icons to copy the address in the clipboard!</string>
 </resources>

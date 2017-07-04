@@ -55,12 +55,16 @@ public class Crypto {
         }
     }
 
-    public void showAuthenticationScreen(Fragment fragment) {
+    public void showAuthenticationScreen(Fragment fragment, Activity activity) {
         // Create the Confirm Credentials screen. You can customize the title and description. Or
         // we will provide a generic one for you if you leave it null
         Intent intent = keyguard.createConfirmDeviceCredentialIntent(null, null);
         if (intent != null) {
-            fragment.startActivityForResult(intent, SiaCold.REQUEST_CODE);
+            if(fragment != null) {
+                fragment.startActivityForResult(intent, SiaCold.REQUEST_CODE);
+            } else {
+                activity.startActivityForResult(intent, SiaCold.REQUEST_CODE);
+            }
         }
     }
 
@@ -108,7 +112,7 @@ public class Crypto {
             return true;
         } catch (UserNotAuthenticatedException e) {
             // User is not authenticated, let's authenticate with device credentials.
-            showAuthenticationScreen(f);
+            showAuthenticationScreen(f, activity);
             return false;
         } catch (KeyPermanentlyInvalidatedException e) {
             return false;
@@ -140,7 +144,7 @@ public class Crypto {
             return true;
         } catch (UserNotAuthenticatedException e) {
             // User is not authenticated, let's authenticate with device credentials.
-            showAuthenticationScreen(f);
+            showAuthenticationScreen(f, activity);
             return false;
         } catch (KeyPermanentlyInvalidatedException e) {
             // This happens if the lock screen has been disabled or reset after the key was

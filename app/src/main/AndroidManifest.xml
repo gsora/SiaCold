@@ -27,7 +27,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".AppPreferences.AppPreferencesActivity">
+        <activity android:name=".AppPreferences.AppPreferencesActivity"
+                  android:screenOrientation="portrait">
         </activity>
     </application>
 
