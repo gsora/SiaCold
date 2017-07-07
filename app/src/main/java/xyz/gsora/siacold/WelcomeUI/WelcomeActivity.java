@@ -18,7 +18,7 @@ import xyz.gsora.siacold.R;
 public class WelcomeActivity extends AppCompatActivity {
 
     @BindView(R.id.tutorialViewPager)
-    ViewPager tutorialViewPager;
+    NonSwipeableViewPager tutorialViewPager;
 
     @BindView(R.id.tabDots)
     TabLayout tabDots;
@@ -37,9 +37,11 @@ public class WelcomeActivity extends AppCompatActivity {
 
         WelcomeUIAdapter adapter = new WelcomeUIAdapter(getSupportFragmentManager());
         tutorialViewPager.setAdapter(adapter);
+        tutorialViewPager.setSwipeable(true);
 
         tabDots.setupWithViewPager(tutorialViewPager, true);
         checkIfSecureAndUsable();
+        setupViewPagerListener();
     }
 
     public void checkIfSecureAndUsable() {
@@ -58,7 +60,34 @@ public class WelcomeActivity extends AppCompatActivity {
         }
     }
 
-    public void moveToNextPage() {
+    void setupViewPagerListener() {
+        // Attach the page change listener inside the activity
+        tutorialViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            // This method will be invoked when a new page becomes selected.
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 1) {
+                    tutorialViewPager.setSwipeable(false);
+                }
+            }
+
+            // This method will be invoked when the current page is scrolled
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                // Code goes here
+            }
+
+            // Called when the scroll state changes:
+            // SCROLL_STATE_IDLE, SCROLL_STATE_DRAGGING, SCROLL_STATE_SETTLING
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                // Code goes here
+            }
+        });
+    }
+
+    void moveToNextPage() {
         tutorialViewPager.setCurrentItem(tutorialViewPager.getCurrentItem() + 1);
     }
 

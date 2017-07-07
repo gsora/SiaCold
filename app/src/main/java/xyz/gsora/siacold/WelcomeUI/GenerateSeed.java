@@ -75,25 +75,22 @@ public class GenerateSeed extends Fragment {
         importSeed.setOnClickListener(this::showImportSeed);
     }
 
-    public void importSeed(View v) {
-
-    }
-
     public void showImportSeed(View v) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View dia = inflater.inflate(R.layout.import_seed, null);
         EditText e = (EditText) dia.findViewById(R.id.importSeedText);
+        byte[] seedByte = e.getText().toString().getBytes(StandardCharsets.UTF_8);
 
         Fragment thisFragment = this;
         builder.setView(dia)
                 // Add action buttons
                 .setPositiveButton("Save", (dialog, id) -> {
-                    c = new Crypto(getActivity(), getContext(), thisFragment, e.getText().toString().getBytes(StandardCharsets.UTF_8));
+                    c = new Crypto(getActivity(), getContext(), thisFragment, seedByte);
                     c.tryEncrypt();
                     try {
-                        setSeed(new Wallet(), c);
+                        setSeed(c);
                     } catch (NoDecryptedDataException ee) {
                         ee.printStackTrace();
                     }
@@ -130,7 +127,7 @@ public class GenerateSeed extends Fragment {
                     c = new Crypto(getActivity(), getContext(), thisFragment, seed.getBytes(StandardCharsets.UTF_8));
                     c.tryEncrypt();
                     try {
-                        setSeed(new Wallet(), c);
+                        setSeed(c);
                     } catch (NoDecryptedDataException e) {
                         e.printStackTrace();
                     }
@@ -148,9 +145,8 @@ public class GenerateSeed extends Fragment {
                 // Challenge completed, proceed with using cipher
                 if (resultCode == RESULT_OK) {
                     if (c.tryEncrypt()) {
-                        Wallet w = new Wallet();
                         try {
-                            setSeed(w, c);
+                            setSeed(c);
                         } catch (NoDecryptedDataException e) {
                             e.printStackTrace();
                         }
@@ -168,7 +164,8 @@ public class GenerateSeed extends Fragment {
         spEdit.apply();
     }
 
-    private void setSeed(Wallet w, Crypto c) throws NoDecryptedDataException {
+    private void setSeed(Crypto c) throws NoDecryptedDataException {
+        Wallet w = new Wallet();
         c.tryDecrypt();
         w.setSeed(c.getDecryptedData());
         Realm r = Utils.getRealm();

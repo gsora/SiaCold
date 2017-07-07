@@ -8,7 +8,7 @@
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/refreshInfo"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">4
+        android:layout_height="wrap_content">
 
         <Space
             android:layout_width="wrap_content"
@@ -21,6 +21,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
         android:layout_marginTop="42dp">
 
         <TextView
@@ -29,10 +31,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginTop="30dp"
             android:maxLines="1"
+            android:text="memes"
             android:textAlignment="center"
             android:textSize="75sp"/>
     </me.grantland.widget.AutofitLayout>
