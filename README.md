@@ -1,4 +1,4 @@
-# SiaCold
+# SiaCold [![Build Status](https://travis-ci.org/gsora/SiaCold.svg?branch=master)](https://travis-ci.org/gsora/SiaCold)
 
 An easy-to-use cold storage wallet for [Siacoin](http://sia.tech/).
 
