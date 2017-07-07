@@ -22,9 +22,9 @@ deploy:
   provider: releases
   api_key:
     secure: ZeljDJo/W3MT3+oEdC9dnlHSOLHCuM07GZH3V3C4jZyoqB17oH6wI3959u1hIMhYW6YFwI+mPA5tSHs8OeDjmnUuOtfGq2P1I+sd6t09oHzKZI2K2ZGm5YNmZsYYTmdx8CMvtx2QzQWzzkXEncKeApcLW4PZRUylM6YWSjAPNndB8Qxy2anhgaXwZ2LwMbju3LQG+GBcUk2be/utLAVUTWvmIY3mpY3gF+crJQpz97aJJ5cHsDq0P4S4g30BtVEHT9IZZluJMFh873NRMZWpq4O+8A6EsUB53olj9DGr4MAuCYrdW98F8/rGR9HOgdWdCL0gp+BrjikfX1VMXBDwNknJpQdcRkeqrrPai3DY3AT2oapwlAw31T4DNb4uPXoQ2pBFIXFj7dTJMLZv5af0JIAyMrrpE/uDbyMEP7pA+d1oY+HL6YtT61qRED+hOGdaxac+bqvdD+6v1orgykM2qYskdjvnAb2do5tq/m5t0CS3QMYtCGHlP0xpB6PmN0dyO83T9WaKrS4jezi5x1DEl7wgWC+Kb33EBUktzjkNQuXkZO7TYcSbHz9mVd8a3IQEOQF2DfrMM5mjdKHJxjfR2qhT49Yu/vK2osKSiWA2i3YUIVJhMVzJyqmxR3DAvNdajBqKODS28kNEV7591iE3SgFXlCRLM5Ky8fSmbZobUog=
-    skip_cleanup: true
-    file-glob: true
-    file: SiaCold-debug*
+  skip_cleanup: true
+  file-glob: true
+  file: SiaCold-debug*
   on:
     repo: gsora/SiaCold
     tags: true
